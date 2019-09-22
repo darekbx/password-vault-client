@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:biometric/biometric.dart';
+import 'package:flutter/services.dart';
 
 class AuthorizePage extends StatefulWidget {
   AuthorizePage({Key key}) : super(key: key);
@@ -8,6 +10,48 @@ class AuthorizePage extends StatefulWidget {
 }
 
 class _AuthorizePageState extends State<AuthorizePage> {
+  final Biometric _biometric = Biometric();
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(Duration.zero, () {
+      _initializeBiometric();
+    });
+  }
+
+  Future<void> _initializeBiometric() async {
+    bool authResult = false;
+    bool authAvailable;
+
+    try {
+      authAvailable = await _biometric.biometricAvailable();
+    } on PlatformException catch (e) {
+      print(e);
+    }
+
+    if (authAvailable) {
+      String errorMessage = "";
+      String errorCode = "";
+      try {
+        authResult = await _biometric.biometricAuthenticate(keepAlive: true);
+      } on PlatformException catch (e) {
+        errorMessage = e.message.toString();
+        errorCode = e.message.toString();
+      }
+
+      if (mounted) {
+        if (authResult) {
+          // Authenticated
+
+        } else {
+          // Failed
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

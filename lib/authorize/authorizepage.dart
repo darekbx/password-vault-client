@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:biometric/biometric.dart';
 import 'package:flutter/services.dart';
 
+enum _State {
+  NOT_AUTHENTICATED,
+  NOT_AVAILABLE,
+  AUTHENTICATION_FAILED,
+  AUTHENTICATED
+}
+
 class AuthorizePage extends StatefulWidget {
   AuthorizePage({Key key}) : super(key: key);
 
@@ -11,6 +18,7 @@ class AuthorizePage extends StatefulWidget {
 
 class _AuthorizePageState extends State<AuthorizePage> {
   final Biometric _biometric = Biometric();
+  _State _authState = _State.NOT_AUTHENTICATED;
 
   @override
   void initState() {
@@ -22,8 +30,7 @@ class _AuthorizePageState extends State<AuthorizePage> {
   }
 
   Future<void> _initializeBiometric() async {
-    bool authResult = false;
-    bool authAvailable;
+    bool authAvailable = false;
 
     try {
       authAvailable = await _biometric.biometricAvailable();
@@ -32,33 +39,48 @@ class _AuthorizePageState extends State<AuthorizePage> {
     }
 
     if (authAvailable) {
-      String errorMessage = "";
-      String errorCode = "";
+      bool result = false;
       try {
-        authResult = await _biometric.biometricAuthenticate(keepAlive: true);
+        result = await _biometric.biometricAuthenticate(keepAlive: true);
       } on PlatformException catch (e) {
-        errorMessage = e.message.toString();
-        errorCode = e.message.toString();
+        print(e);
       }
 
       if (mounted) {
-        if (authResult) {
-          // Authenticated
-
-        } else {
-          // Failed
-        }
+        setState(() {
+          _authState =
+              result ? _State.AUTHENTICATED : _State.AUTHENTICATION_FAILED;
+        });
       }
+    } else {
+      setState(() {
+        _authState = _State.NOT_AVAILABLE;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget body;
+    switch (_authState) {
+      case _State.NOT_AUTHENTICATED:
+        body = _displayAuthRequest();
+        break;
+      case _State.NOT_AVAILABLE:
+        body = Text("Not available");
+        break;
+      case _State.AUTHENTICATION_FAILED:
+        body = Text("Authentication failed");
+        break;
+      case _State.AUTHENTICATED:
+        body = Text("Authenticated");
+        break;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text("Password Vault - Authorize"),
       ),
-      body: _displayAuthRequest(),
+      body: body,
     );
   }
 

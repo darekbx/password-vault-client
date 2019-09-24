@@ -67,10 +67,10 @@ class _AuthorizePageState extends State<AuthorizePage> {
         body = _displayAuthRequest();
         break;
       case _State.NOT_AVAILABLE:
-        body = Text("Not available");
+        body = _errorMessage("Not available");
         break;
       case _State.AUTHENTICATION_FAILED:
-        body = Text("Authentication failed");
+        body = _errorMessage("Authentication failed");
         break;
       case _State.AUTHENTICATED:
         body = Text("Authenticated");
@@ -86,23 +86,68 @@ class _AuthorizePageState extends State<AuthorizePage> {
 
   Widget _displayAuthRequest() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(Icons.fingerprint, size: 75.0),
-          Padding(
+        child: Card(
+            elevation: 3.0,
+            child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: Column(children: <Widget>[
-                Text('Please authorize with fingerprint', textScaleFactor: 1.1),
-                InkWell(
-                    child: Text('Or enter PIN',
-                        textScaleFactor: 1.1,
-                        style: TextStyle(decoration: TextDecoration.underline)),
-                    onTap: _onPinTap)
-              ]))
-        ],
-      ),
-    );
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(Icons.fingerprint, size: 75.0),
+                  Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(children: <Widget>[
+                        Text('Please authorize with fingerprint',
+                            textScaleFactor: 1.1),
+                        InkWell(
+                            child: Text('Or enter PIN',
+                                textScaleFactor: 1.1,
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline)),
+                            onTap: _onPinTap)
+                      ]))
+                ],
+              ),
+            )));
+  }
+
+  Widget _errorMessage(String message) {
+    return Center(
+        child: Card(
+            elevation: 3.0,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(Icons.fingerprint, size: 75.0, color: Colors.redAccent),
+                  Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(children: <Widget>[
+                        Text(message,
+                            textScaleFactor: 1.1,
+                            style: TextStyle(color: Colors.redAccent)),
+                        InkWell(
+                            child: Text('Retry',
+                                textScaleFactor: 1.1,
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline)),
+                            onTap: _retryAuthentication)
+                      ]))
+                ],
+              ),
+            )));
+  }
+
+  void _retryAuthentication() {
+    setState(() {
+      _authState = _State.NOT_AUTHENTICATED;
+    });
+    Future.delayed(Duration.zero, () {
+      _initializeBiometric();
+    });
   }
 
   void _onPinTap() {}

@@ -6,7 +6,8 @@ enum _State {
   NOT_AUTHENTICATED,
   NOT_AVAILABLE,
   AUTHENTICATION_FAILED,
-  AUTHENTICATED
+  AUTHENTICATED,
+  ENTER_PIN
 }
 
 class AuthorizePage extends StatefulWidget {
@@ -75,6 +76,9 @@ class _AuthorizePageState extends State<AuthorizePage> {
       case _State.AUTHENTICATED:
         body = Text("Authenticated");
         break;
+      case _State.ENTER_PIN:
+        body =_enterPin();
+        break;
     }
     return Scaffold(
       appBar: AppBar(
@@ -105,5 +109,38 @@ class _AuthorizePageState extends State<AuthorizePage> {
     );
   }
 
-  void _onPinTap() {}
+  Widget _enterPin() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          //Icon(Icons.fingerprint, size: 75.0),
+          Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+
+                  for (var i = 0; i < 4; i++)
+                    Container(width: 44, child: TextFormField(
+                      maxLength: 1,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(16),
+                        border: OutlineInputBorder(),
+                        counterText: ''
+                      ),
+                    ))
+                
+              ]))
+        ],
+      ),
+    );
+  }
+
+  void _onPinTap() {
+    setState(() {
+      _authState = _State.ENTER_PIN;
+    });
+  }
 }

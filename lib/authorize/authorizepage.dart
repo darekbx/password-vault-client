@@ -138,27 +138,38 @@ class _AuthorizePageState extends State<AuthorizePage> {
           elevation: 3.0,
           child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: Column(
-              
-                children: [
-              
-
-                Wrap(children: <Widget>[
-                  for (var i = 0; i < 4; i++)
-                    Container(
-                        width: 44,
-                        child: TextFormField(
-                          maxLength: 1,
-                          textInputAction: TextInputAction.next,
-                          decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(16),
-                              border: OutlineInputBorder(),
-                              counterText: ''),
-                        ))
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text("Enter PIN",
+                        textScaleFactor: 1.1,
+                        style: TextStyle(color: Colors.black))),
+                Wrap(spacing: 4, children: <Widget>[
+                  for (var i = 0; i < 4; i++) _createPinField(i)
                 ]),
-              FlatButton(child: Text("ok"))
+                Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: RaisedButton(
+                        child: Text("Authorize"), onPressed: () {}))
               ]))),
     );
+  }
+
+  var focusNodes = List(4);
+
+  Widget _createPinField(int index) {
+    focusNodes.add(FocusNode());
+    return Container(
+        width: 44,
+        child: TextFormField(
+          maxLength: 1,
+          focusNode: focusNodes[index],
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(16),
+              border: OutlineInputBorder(),
+              counterText: ''),
+        ));
   }
 
   void _onPinTap() {

@@ -8,7 +8,7 @@ class PasswordVaultApp extends StatelessWidget {
     return MaterialApp(
       title: 'Password Vault',
       theme: ThemeData(
-        primarySwatch: Colors.grey,
+        primarySwatch: Colors.blueGrey,
       ),
       home: AuthorizePage(),
     );

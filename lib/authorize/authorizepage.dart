@@ -19,7 +19,11 @@ class AuthorizePage extends StatefulWidget {
 
 class _AuthorizePageState extends State<AuthorizePage> {
   final Biometric _biometric = Biometric();
+  final int _pinSize = 4;
+
   _State _authState = _State.NOT_AUTHENTICATED;
+  var _focusNodes = List();
+  var _pinControllers = List<TextEditingController>();
 
   @override
   void initState() {
@@ -140,35 +144,45 @@ class _AuthorizePageState extends State<AuthorizePage> {
               padding: EdgeInsets.all(16.0),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.only(bottom: 16),
                     child: Text("Enter PIN",
                         textScaleFactor: 1.1,
                         style: TextStyle(color: Colors.black))),
                 Wrap(spacing: 4, children: <Widget>[
-                  for (var i = 0; i < 4; i++) _createPinField(i)
-                ]),
-                Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: RaisedButton(
-                        child: Text("Authorize"), onPressed: () {}))
+                  for (var i = 0; i < _pinSize; i++) _createPinField(i)
+                ])
               ]))),
     );
   }
 
-  var focusNodes = List(4);
-
   Widget _createPinField(int index) {
-    focusNodes.add(FocusNode());
+    _focusNodes.add(FocusNode());
+    _pinControllers.add(TextEditingController());
     return Container(
         width: 44,
         child: TextFormField(
           maxLength: 1,
-          focusNode: focusNodes[index],
-          textInputAction: TextInputAction.next,
+          focusNode: _focusNodes[index],
+          controller: _pinControllers[index],
+          keyboardType: TextInputType.number,
+          textInputAction:
+              index == 3 ? TextInputAction.send : TextInputAction.next,
           decoration: InputDecoration(
               contentPadding: EdgeInsets.all(16),
               border: OutlineInputBorder(),
               counterText: ''),
+          onFieldSubmitted: (field) {
+            if (index == 3) {
+              _onPinAuthorize();
+            } else {
+              FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+            }
+          },
+          onChanged: (text) {
+            if (text.length == 1) {
+              FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+            }
+          },
         ));
   }
 
@@ -176,5 +190,12 @@ class _AuthorizePageState extends State<AuthorizePage> {
     setState(() {
       _authState = _State.ENTER_PIN;
     });
+  }
+
+  void _onPinAuthorize() {
+    var pin = "";
+    _pinControllers.forEach((controller) => pin += controller.text);
+    
+    // TODO: handle pin
   }
 }

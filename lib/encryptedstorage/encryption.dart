@@ -7,22 +7,19 @@ class Encryption {
     return null;
   }
 
-  void save(String key, String rawValue) {
+  String encrypt(String rawValue) {
     final encrypter = _createEncrypter();
     final encrypted = encrypter.encrypt(rawValue);
-    
-    // TODO save key and encrypted value
+    return encrypted.base64;
   }
 
-  String read(String key) {
-    final encrypted = "TODO"; // read encrypted value by key
-
+  String decrypt(String value) {
     final encrypter = _createEncrypter();
-    return encrypter.decrypt(encrypted);
+    return encrypter.decrypt64(value);
   }
 
   Encrypter _createEncrypter() {
-    final key = Key.fromUtf8('TODO_KEY');
+    final key = Key.fromUtf8('qwertyuiopasdfghjklzxcvbnmqwerfa');
     final b64key = Key.fromUtf8(base64Url.encode(key.bytes));
     final fernet = Fernet(b64key);
     return Encrypter(fernet);

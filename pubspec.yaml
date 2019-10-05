@@ -15,9 +15,7 @@ dependencies:
   encrypt: ^3.3.1
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  test: ^1.8.0
 
 flutter:
-
   uses-material-design: true

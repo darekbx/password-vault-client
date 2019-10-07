@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   biometric: ^0.0.9
   encrypt: ^3.3.1
+  shared_preferences: ^0.5.3+4
 
 dev_dependencies:
   test: ^1.8.0

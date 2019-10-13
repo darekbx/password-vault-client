@@ -13,6 +13,11 @@ class Storage {
     var preferences = await _providePreferences();
     return preferences.getString(this._pinKey);
   }
+
+  Future<bool> containsPin() async {
+    var preferences = await _providePreferences();
+    return preferences.containsKey(this._pinKey);
+  }
   
   Future<SharedPreferences> _providePreferences() async => await SharedPreferences.getInstance();
 }

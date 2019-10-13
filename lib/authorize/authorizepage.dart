@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:biometric/biometric.dart';
 import 'package:flutter/services.dart';
+import 'package:passwordvaultclient/storage.dart';
 
 enum _State {
   NOT_AUTHENTICATED,
   NOT_AVAILABLE,
   AUTHENTICATION_FAILED,
   AUTHENTICATED,
-  ENTER_PIN
+  ENTER_PIN,
+  PROVIDE_PIN
 }
 
 class AuthorizePage extends StatefulWidget {
@@ -19,6 +21,7 @@ class AuthorizePage extends StatefulWidget {
 
 class _AuthorizePageState extends State<AuthorizePage> {
   final Biometric _biometric = Biometric();
+  final Storage _storage = Storage();
   final int _pinSize = 4;
 
   _State _authState = _State.NOT_AUTHENTICATED;
@@ -28,6 +31,13 @@ class _AuthorizePageState extends State<AuthorizePage> {
   @override
   void initState() {
     super.initState();
+
+    _storage.containsPin().then((containsPin) {
+      setState(() {
+        _authState = containsPin ? _State.NOT_AUTHENTICATED : _State.PROVIDE_PIN;
+      });
+    });
+
     Future.delayed(Duration.zero, () {
       _initializeBiometric();
     });
@@ -80,7 +90,10 @@ class _AuthorizePageState extends State<AuthorizePage> {
         body = Text("Authenticated");
         break;
       case _State.ENTER_PIN:
-        body = _enterPin();
+        body = _enterPin("Enter PIN");
+        break;
+      case _State.PROVIDE_PIN:
+        body = _enterPin("Set new PIN");
         break;
     }
     return Scaffold(
@@ -136,7 +149,7 @@ class _AuthorizePageState extends State<AuthorizePage> {
     });
   }
 
-  Widget _enterPin() {
+  Widget _enterPin(String title) {
     return Center(
       child: Card(
           elevation: 3.0,
@@ -145,7 +158,7 @@ class _AuthorizePageState extends State<AuthorizePage> {
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Padding(
                     padding: EdgeInsets.only(bottom: 16),
-                    child: Text("Enter PIN",
+                    child: Text(title,
                         textScaleFactor: 1.1,
                         style: TextStyle(color: Colors.black))),
                 Wrap(spacing: 4, children: <Widget>[
@@ -195,7 +208,10 @@ class _AuthorizePageState extends State<AuthorizePage> {
   void _onPinAuthorize() {
     var pin = "";
     _pinControllers.forEach((controller) => pin += controller.text);
-    
-    // TODO: handle pin
+    if (_authState ==_State.ENTER_PIN) {
+      // TODO: handle pin
+    } else if (_authState ==_State.PROVIDE_PIN) {
+      _storage.savePin(pin);
+    }
   }
 }

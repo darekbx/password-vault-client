@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:passwordvaultclient/security/encryption.dart';
 
@@ -5,7 +7,8 @@ class EncryptedStorage {
   Encryption _encryption;
 
   EncryptedStorage(String salt) {
-    _encryption = Encryption(salt);
+    var pinMd5 = md5.convert(utf8.encode(salt)).toString();
+    _encryption = Encryption(pinMd5);
   }
 
   String _prefix = "key_";

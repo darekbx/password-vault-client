@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:biometric/biometric.dart';
 import 'package:flutter/services.dart';
 import 'package:passwordvaultclient/storage.dart';
+import 'package:passwordvaultclient/vault/keyslist.dart';
 
 enum _State {
+  PROVIDE_PIN,
   NOT_AUTHENTICATED,
   NOT_AVAILABLE,
   AUTHENTICATION_FAILED,
   AUTHENTICATED,
-  ENTER_PIN,
-  PROVIDE_PIN
+  ENTER_PIN
 }
 
 class AuthorizePage extends StatefulWidget {
@@ -31,15 +32,23 @@ class _AuthorizePageState extends State<AuthorizePage> {
   @override
   void initState() {
     super.initState();
+    _initAuthState();
+    Future.delayed(Duration.zero, () {
+      _initializeBiometric();
+    });
+  }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _biometric.biometricCancel();
+  }
+
+  _initAuthState() async {
     _storage.containsPin().then((containsPin) {
       setState(() {
         _authState = containsPin ? _State.NOT_AUTHENTICATED : _State.PROVIDE_PIN;
       });
-    });
-
-    Future.delayed(Duration.zero, () {
-      _initializeBiometric();
     });
   }
 
@@ -88,6 +97,7 @@ class _AuthorizePageState extends State<AuthorizePage> {
         break;
       case _State.AUTHENTICATED:
         body = Text("Authenticated");
+        Navigator.push(context, MaterialPageRoute(builder: (context) => KeysListPage()));
         break;
       case _State.ENTER_PIN:
         body = _enterPin("Enter PIN");
@@ -209,9 +219,19 @@ class _AuthorizePageState extends State<AuthorizePage> {
     var pin = "";
     _pinControllers.forEach((controller) => pin += controller.text);
     if (_authState ==_State.ENTER_PIN) {
-      // TODO: handle pin
+      _verifyPin(pin);
     } else if (_authState ==_State.PROVIDE_PIN) {
       _storage.savePin(pin);
+      setState(() {
+        _authState = _State.ENTER_PIN;
+      });
     }
+  }
+
+  void _verifyPin(String pin) async {
+    var storedPin = await _storage.readPin();
+    setState(() {
+      _authState = storedPin == pin ? _State.AUTHENTICATED : _State.AUTHENTICATION_FAILED;
+    });
   }
 }

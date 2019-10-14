@@ -16,8 +16,8 @@ class _KeysListState extends State<KeysListPage> {
 
   @override
   void initState() {
-    _initializeStorage(); 
     super.initState();
+    _initializeStorage(); 
   }
 
   _initializeStorage() async {
@@ -36,9 +36,9 @@ class _KeysListState extends State<KeysListPage> {
   }
 
   FutureBuilder _buildList() {
-    return FutureBuilder(
+    return FutureBuilder<List<String>>(
             future: _buildKeysFuture(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
               return _handleFuture(context, snapshot);
             });
   }
@@ -64,7 +64,7 @@ class _KeysListState extends State<KeysListPage> {
   }
 
   _buildListView(List<String> keys) {
-
+    return Text("List");
   }
 
   _buildLoadingView() {

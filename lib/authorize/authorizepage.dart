@@ -70,10 +70,13 @@ class _AuthorizePageState extends State<AuthorizePage> {
       }
 
       if (mounted) {
-        setState(() {
-          _authState =
-              result ? _State.AUTHENTICATED : _State.AUTHENTICATION_FAILED;
-        });
+        if (result) {
+          _redirectToVault();
+        } else {
+          setState(() {
+            _authState = _State.AUTHENTICATION_FAILED;
+          });
+        }
       }
     } else {
       setState(() {
@@ -97,7 +100,6 @@ class _AuthorizePageState extends State<AuthorizePage> {
         break;
       case _State.AUTHENTICATED:
         body = Text("Authenticated");
-        Navigator.push(context, MaterialPageRoute(builder: (context) => KeysListPage()));
         break;
       case _State.ENTER_PIN:
         body = _enterPin("Enter PIN");
@@ -217,21 +219,32 @@ class _AuthorizePageState extends State<AuthorizePage> {
 
   void _onPinAuthorize() {
     var pin = "";
-    _pinControllers.forEach((controller) => pin += controller.text);
+    _pinControllers.forEach((controller) {
+      pin += controller.text;
+      controller.clear();
+    });
     if (_authState ==_State.ENTER_PIN) {
       _verifyPin(pin);
     } else if (_authState ==_State.PROVIDE_PIN) {
       _storage.savePin(pin);
       setState(() {
-        _authState = _State.ENTER_PIN;
+        _authState = _State.NOT_AUTHENTICATED;
       });
     }
   }
 
   void _verifyPin(String pin) async {
     var storedPin = await _storage.readPin();
-    setState(() {
-      _authState = storedPin == pin ? _State.AUTHENTICATED : _State.AUTHENTICATION_FAILED;
-    });
+    if (storedPin == pin) {
+      _redirectToVault();
+    } else {
+      setState(() {
+        _authState = _State.AUTHENTICATION_FAILED;
+      });
+    }
+  }
+
+  void _redirectToVault() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => KeysListPage()));
   }
 }

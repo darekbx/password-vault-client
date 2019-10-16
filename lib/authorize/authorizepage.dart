@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:biometric/biometric.dart';
 import 'package:flutter/services.dart';
 import 'package:passwordvaultclient/storage.dart';
-import 'package:passwordvaultclient/vault/keyslist.dart';
+import 'package:passwordvaultclient/vault/keyslistpage.dart';
 
 enum _State {
   PROVIDE_PIN,
@@ -47,7 +47,8 @@ class _AuthorizePageState extends State<AuthorizePage> {
   _initAuthState() async {
     _storage.containsPin().then((containsPin) {
       setState(() {
-        _authState = containsPin ? _State.NOT_AUTHENTICATED : _State.PROVIDE_PIN;
+        _authState =
+            containsPin ? _State.NOT_AUTHENTICATED : _State.PROVIDE_PIN;
       });
     });
   }
@@ -223,9 +224,9 @@ class _AuthorizePageState extends State<AuthorizePage> {
       pin += controller.text;
       controller.clear();
     });
-    if (_authState ==_State.ENTER_PIN) {
+    if (_authState == _State.ENTER_PIN) {
       _verifyPin(pin);
-    } else if (_authState ==_State.PROVIDE_PIN) {
+    } else if (_authState == _State.PROVIDE_PIN) {
       _storage.savePin(pin);
       setState(() {
         _authState = _State.NOT_AUTHENTICATED;
@@ -245,6 +246,9 @@ class _AuthorizePageState extends State<AuthorizePage> {
   }
 
   void _redirectToVault() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => KeysListPage()));
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => KeysListPage()),
+        (Route<dynamic> route) => false);
   }
 }

@@ -61,11 +61,14 @@ class _AddSecretState extends State<AddSecretPage> {
   }
 
   Widget _buildErrorMessage() {
-    return Padding(padding: EdgeInsets.all(16),
-    child: Text(_errorMessage, style: TextStyle(
-      color: Colors.redAccent
-    )),
-    );
+    if (_errorMessage.isEmpty) {
+      return Container();
+    } else {
+      return Padding(
+        padding: EdgeInsets.all(16),
+        child: Text(_errorMessage, style: TextStyle(color: Colors.redAccent)),
+      );
+    }
   }
 
   Widget _buildKeyField(TextEditingController controller, String hint) {
@@ -131,19 +134,29 @@ class _AddSecretState extends State<AddSecretPage> {
 
   _save() {
     var key = _keyController.text;
-    var password =_passwordController.text;
-    var passwordRepeat =_passwordRepeatController.text;
+    var password = _passwordController.text;
+    var passwordRepeat = _passwordRepeatController.text;
 
     if (key.isEmpty) {
-      setState(() { _errorMessage = "Key cannot be empty"; });
+      setState(() {
+        _errorMessage = "Key cannot be empty";
+      });
     } else if (password.isEmpty) {
-      setState(() { _errorMessage = "Password cannot be empty"; });
+      setState(() {
+        _errorMessage = "Password cannot be empty";
+      });
     } else if (passwordRepeat.isEmpty) {
-      setState(() { _errorMessage = "Password repeat cannot be empty"; });
+      setState(() {
+        _errorMessage = "Password repeat cannot be empty";
+      });
     } else if (password != passwordRepeat) {
-      setState(() { _errorMessage = "Passwords are not the same"; });
+      setState(() {
+        _errorMessage = "Passwords are not the same";
+      });
     } else {
-      setState(() { _errorMessage = ""; });
+      setState(() {
+        _errorMessage = "";
+      });
       _encryptedStorage.save(key, password);
       Navigator.pop(context);
     }

@@ -20,7 +20,8 @@ class _AddSecretState extends State<AddSecretPage> {
   final Storage _storage = Storage();
   EncryptedStorage _encryptedStorage;
 
-  var passwordVisible = false;
+  var _passwordVisible = false;
+  var _errorMessage = "";
 
   @override
   void initState() {
@@ -52,9 +53,18 @@ class _AddSecretState extends State<AddSecretPage> {
           _buildKeyField(_keyController, "Secret key"),
           _buildPasswordField(_passwordController, "Enter secret", false),
           _buildPasswordField(_passwordRepeatController, "Repeat secret", true),
+          _buildErrorMessage(),
           _buildSaveButton()
         ],
       ),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Padding(padding: EdgeInsets.all(16),
+    child: Text(_errorMessage, style: TextStyle(
+      color: Colors.redAccent
+    )),
     );
   }
 
@@ -80,7 +90,7 @@ class _AddSecretState extends State<AddSecretPage> {
         child: TextFormField(
             controller: controller,
             focusNode: isRepeat ? _passwordRepeatFocusNode : _passwordFocusNode,
-            obscureText: passwordVisible,
+            obscureText: _passwordVisible,
             onFieldSubmitted: (field) {
               if (!isRepeat) {
                 FocusScope.of(context).requestFocus(_passwordRepeatFocusNode);
@@ -94,12 +104,12 @@ class _AddSecretState extends State<AddSecretPage> {
                 hintText: hint,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
                     color: Theme.of(context).primaryColorDark,
                   ),
                   onPressed: () {
                     setState(() {
-                      passwordVisible = !passwordVisible;
+                      _passwordVisible = !_passwordVisible;
                     });
                   },
                 ))));
@@ -115,7 +125,27 @@ class _AddSecretState extends State<AddSecretPage> {
                   child: Text("Save"),
                   textColor: Colors.white,
                   color: Colors.blueGrey,
-                  onPressed: () {},
+                  onPressed: _save(),
                 ))));
+  }
+
+  _save() {
+    var key = _keyController.text;
+    var password =_passwordController.text;
+    var passwordRepeat =_passwordRepeatController.text;
+
+    if (key.isEmpty) {
+      setState(() { _errorMessage = "Key cannot be empty"; });
+    } else if (password.isEmpty) {
+      setState(() { _errorMessage = "Password cannot be empty"; });
+    } else if (passwordRepeat.isEmpty) {
+      setState(() { _errorMessage = "Password repeat cannot be empty"; });
+    } else if (password != passwordRepeat) {
+      setState(() { _errorMessage = "Passwords are not the same"; });
+    } else {
+      setState(() { _errorMessage = ""; });
+      _encryptedStorage.save(key, password);
+      Navigator.pop(context);
+    }
   }
 }

@@ -14,10 +14,11 @@ class EncryptedStorage {
   String _prefix = "key_";
 
   Future<List<String>> listKeys() async {
-    //var preferences = await _providePreferences();
-    //return preferences.getKeys().where((key) => key.startsWith(_prefix)).toList();
-
-    return ["Facebook", "Twitter"].toList();
+    var preferences = await _providePreferences();
+    if (preferences.getKeys().length == 0) {
+      return [].toList();
+    }
+    return preferences.getKeys().where((key) => key.startsWith(_prefix)).toList();
   }
 
   Future save(String key, String value) async {

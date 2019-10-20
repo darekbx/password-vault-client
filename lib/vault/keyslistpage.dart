@@ -61,10 +61,18 @@ class _KeysListState extends State<KeysListPage> {
           if (snapshot.data == null) {
             return _buildError("Error :( ");
           } else {
-            return _buildListView(snapshot.data);
+            if (snapshot.data.isEmpty) {
+              return _buildEmptyView();
+            } else {
+              return _buildListView(snapshot.data);
+            }
           }
         }
     }
+  }
+
+  Widget _buildEmptyView() {
+    return Center(child: Text("The list is empty."));
   }
 
   Widget _buildListView(List<String> keys) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:passwordvaultclient/storage.dart';
 import 'package:passwordvaultclient/security/encryptedstorage.dart';
 import 'package:passwordvaultclient/vault/addsecretpage.dart';
+import 'package:passwordvaultclient/vault/secretpage.dart';
 
 class KeysListPage extends StatefulWidget {
   KeysListPage({Key key}) : super(key: key);
@@ -99,7 +100,9 @@ class _KeysListState extends State<KeysListPage> {
           ],
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        _openSecret(key);
+      },
     );
   }
 
@@ -114,6 +117,11 @@ class _KeysListState extends State<KeysListPage> {
       padding: EdgeInsets.all(8.0),
       child: Text(errorMessage),
     );
+  }
+
+  _openSecret(String key) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SecretPage(secretKey: key)));
   }
 
   _addSecret() {

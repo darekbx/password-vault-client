@@ -56,7 +56,7 @@ class _SecretState extends State<SecretPage> {
     switch (snapshot.connectionState) {
       case ConnectionState.none:
       case ConnectionState.waiting:
-        return _buildLoadingView();
+        return _buildSecretView("");
       default:
         if (snapshot.hasError) {
           return _buildError(snapshot.error);
@@ -74,12 +74,6 @@ class _SecretState extends State<SecretPage> {
     }
   }
 
-  _buildLoadingView() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
   _buildError(String errorMessage) {
     return Padding(
       padding: EdgeInsets.all(8.0),
@@ -93,21 +87,22 @@ class _SecretState extends State<SecretPage> {
 
   Widget _buildSecretView(String secret) {
     _passwordController.text = secret;
-    return Container(
-      width: 250,
-      child: Padding(
+    return Padding(
         padding: EdgeInsets.only(top: 16),
-        child: TextFormField(
+        child: Container(
+      width: 250,
+      color: Color(0xBB000000),
+      child: TextFormField(
         controller: _passwordController,
         obscureText: _passwordNotVisible,
         readOnly: true,
         decoration: InputDecoration(
             contentPadding: EdgeInsets.all(16),
-            border: OutlineInputBorder(),
+            border:InputBorder.none,
             suffixIcon: IconButton(
               icon: Icon(
                 _passwordNotVisible ? Icons.visibility : Icons.visibility_off,
-                color: Theme.of(context).primaryColorDark,
+                color: Colors.white60,
               ),
               onPressed: () {
                 setState(() {

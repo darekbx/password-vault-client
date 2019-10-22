@@ -25,6 +25,11 @@ class EncryptedStorage {
         .toList();
   }
 
+  Future delete(String key) async {
+    var preferences = await _providePreferences();
+    preferences.remove("$_prefix$key");
+  }
+
   Future save(String key, String value) async {
     final encrypted = _encryption.encrypt(value);
     var preferences = await _providePreferences();

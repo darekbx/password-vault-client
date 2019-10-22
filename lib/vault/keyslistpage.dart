@@ -13,11 +13,14 @@ class KeysListPage extends StatefulWidget {
 
 class _KeysListState extends State<KeysListPage> {
   final Storage _storage = Storage();
+
   EncryptedStorage _encryptedStorage;
+  Future<List<String>> _keys;
 
   @override
   void initState() {
     super.initState();
+    _keys = _fetchKeys();
   }
 
   @override
@@ -37,13 +40,13 @@ class _KeysListState extends State<KeysListPage> {
 
   FutureBuilder _buildList() {
     return FutureBuilder<List<String>>(
-        future: _buildKeysFuture(),
+        future: _keys,
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           return _handleFuture(context, snapshot);
         });
   }
 
-  Future<List<String>> _buildKeysFuture() async {
+  Future<List<String>> _fetchKeys() async {
     var pin = await _storage.readPin();
     _encryptedStorage = EncryptedStorage(pin);
     return await _encryptedStorage.listKeys();
@@ -103,6 +106,9 @@ class _KeysListState extends State<KeysListPage> {
       onTap: () {
         _openSecret(key);
       },
+      onLongPress: () {
+        _deleteSecret(key);
+      },
     );
   }
 
@@ -119,13 +125,53 @@ class _KeysListState extends State<KeysListPage> {
     );
   }
 
+  _refresh() {
+    setState(() {
+      _keys = _fetchKeys();
+    });
+  }
+
   _openSecret(String key) {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => SecretPage(secretKey: key)));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => SecretPage(secretKey: key)));
+  }
+
+  _deleteSecret(String key) {
+    var cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    var deleteButton = FlatButton(
+      child: Text("Delete"),
+      onPressed: () {
+        Navigator.pop(context);
+        _encryptedStorage.delete(key);
+        _refresh();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Password Vault"),
+          content: Text("Delete secret with \"$key\" key?"),
+          actions: [
+            cancelButton,
+            deleteButton,
+          ],
+        );
+      },
+    );
   }
 
   _addSecret() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => AddSecretPage()));
+            context, MaterialPageRoute(builder: (context) => AddSecretPage()))
+        .then((_) {
+      _refresh();
+    });
   }
 }

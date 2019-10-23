@@ -18,7 +18,16 @@ class EncryptedStorage {
     if (preferences.getKeys().length == 0) {
       return [].toList();
     }
-    return preferences.getKeys().where((key) => key.startsWith(_prefix)).toList();
+    return preferences
+        .getKeys()
+        .where((key) => key.startsWith(_prefix))
+        .map((key) => key.replaceAll(_prefix, ""))
+        .toList();
+  }
+
+  Future delete(String key) async {
+    var preferences = await _providePreferences();
+    preferences.remove("$_prefix$key");
   }
 
   Future save(String key, String value) async {
@@ -33,5 +42,6 @@ class EncryptedStorage {
     return _encryption.decrypt(encrypted);
   }
 
-  Future<SharedPreferences> _providePreferences() async => await SharedPreferences.getInstance();
+  Future<SharedPreferences> _providePreferences() async =>
+      await SharedPreferences.getInstance();
 }

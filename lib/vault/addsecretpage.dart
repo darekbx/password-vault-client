@@ -20,12 +20,13 @@ class _AddSecretState extends State<AddSecretPage> {
   final Storage _storage = Storage();
   EncryptedStorage _encryptedStorage;
 
-  var _passwordVisible = false;
+  var _passwordNotVisible = true;
   var _errorMessage = "";
 
   @override
   void initState() {
     super.initState();
+    _errorMessage = "";
     _initializeStorage();
   }
 
@@ -64,10 +65,7 @@ class _AddSecretState extends State<AddSecretPage> {
     if (_errorMessage.isEmpty) {
       return Container();
     } else {
-      return Padding(
-        padding: EdgeInsets.all(16),
-        child: Text(_errorMessage, style: TextStyle(color: Colors.redAccent)),
-      );
+      return Text(_errorMessage, style: TextStyle(color: Colors.redAccent));
     }
   }
 
@@ -93,7 +91,7 @@ class _AddSecretState extends State<AddSecretPage> {
         child: TextFormField(
             controller: controller,
             focusNode: isRepeat ? _passwordRepeatFocusNode : _passwordFocusNode,
-            obscureText: _passwordVisible,
+            obscureText: _passwordNotVisible,
             onFieldSubmitted: (field) {
               if (!isRepeat) {
                 FocusScope.of(context).requestFocus(_passwordRepeatFocusNode);
@@ -107,12 +105,12 @@ class _AddSecretState extends State<AddSecretPage> {
                 hintText: hint,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    _passwordNotVisible ? Icons.visibility : Icons.visibility_off,
                     color: Theme.of(context).primaryColorDark,
                   ),
                   onPressed: () {
                     setState(() {
-                      _passwordVisible = !_passwordVisible;
+                      _passwordNotVisible = !_passwordNotVisible;
                     });
                   },
                 ))));
@@ -128,7 +126,7 @@ class _AddSecretState extends State<AddSecretPage> {
                   child: Text("Save"),
                   textColor: Colors.white,
                   color: Colors.blueGrey,
-                  onPressed: _save(),
+                  onPressed: _save,
                 ))));
   }
 

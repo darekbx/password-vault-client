@@ -1,4 +1,4 @@
-package com.example.passwordvaultclient
+package com.passwordvaultclient
 
 import android.os.Bundle
 

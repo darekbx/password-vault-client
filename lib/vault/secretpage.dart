@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwordvaultclient/model/secret.dart';
 import 'package:passwordvaultclient/storage.dart';
 import 'package:passwordvaultclient/security/encryptedstorage.dart';
 
@@ -13,9 +14,11 @@ class SecretPage extends StatefulWidget {
 
 class _SecretState extends State<SecretPage> {
   final _passwordController = TextEditingController();
+  final _accountController = TextEditingController();
   final Storage _storage = Storage();
 
-  var _passwordNotVisible = true;
+  Secret _secret;
+  var _secretNotVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -27,36 +30,33 @@ class _SecretState extends State<SecretPage> {
   }
 
   Widget _buildPreview() {
+    if (_secret != null) {
+      return Center(child: _buildSecretView(_secret));
+    }
     return Center(
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-        _buildKey(),
-        FutureBuilder<String>(
-            future: _buildPasswordFuture(),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              return _handleFuture(context, snapshot);
-            })
-      ],
-    ));
+      child: FutureBuilder<Secret>(
+          future: _buildPasswordFuture(),
+          builder: (BuildContext context, AsyncSnapshot<Secret> snapshot) {
+            return _handleFuture(context, snapshot);
+          }),
+    );
   }
 
   Widget _buildKey() {
     return Text(widget.secretKey, style: TextStyle(fontSize: 28));
   }
 
-  Future<String> _buildPasswordFuture() async {
+  Future<Secret> _buildPasswordFuture() async {
     var pin = await _storage.readPin();
     EncryptedStorage encryptedStorage = EncryptedStorage(pin);
-    return await encryptedStorage.read(widget.secretKey);
+    return _secret = await encryptedStorage.read(widget.secretKey);
   }
 
-  Widget _handleFuture(BuildContext context, AsyncSnapshot<String> snapshot) {
+  Widget _handleFuture(BuildContext context, AsyncSnapshot<Secret> snapshot) {
     switch (snapshot.connectionState) {
       case ConnectionState.none:
       case ConnectionState.waiting:
-        return _buildSecretView("");
+        return _buildSecretView(null);
       default:
         if (snapshot.hasError) {
           return _buildError(snapshot.error);
@@ -64,11 +64,7 @@ class _SecretState extends State<SecretPage> {
           if (snapshot.data == null) {
             return _buildError("Error :( ");
           } else {
-            if (snapshot.data.isEmpty) {
-              return _buildEmptyView();
-            } else {
-              return _buildSecretView(snapshot.data);
-            }
+            return _buildSecretView(snapshot.data);
           }
         }
     }
@@ -81,34 +77,49 @@ class _SecretState extends State<SecretPage> {
     );
   }
 
-  Widget _buildEmptyView() {
-    return Center(child: Text("The secret is empty."));
+  Widget _buildSecretView(Secret secret) {
+    if (secret == null) {
+      return Container();
+    }
+
+    _passwordController.text = secret.password;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        _buildKey(),
+        _buildMaskedView(secret.account, _accountController),
+        _buildMaskedView(secret.password, _passwordController)
+      ],
+    );
   }
 
-  Widget _buildSecretView(String secret) {
-    _passwordController.text = secret;
+  Widget _buildMaskedView(String value, TextEditingController controller) {
+    controller.text = value;
     return Padding(
         padding: EdgeInsets.only(top: 16),
         child: Container(
-      width: 250,
-      color: Color(0xBB000000),
-      child: TextFormField(
-        controller: _passwordController,
-        obscureText: _passwordNotVisible,
-        readOnly: true,
-        decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(16),
-            border:InputBorder.none,
-            suffixIcon: IconButton(
-              icon: Icon(
-                _passwordNotVisible ? Icons.visibility : Icons.visibility_off,
-                color: Colors.white60,
-              ),
-              onPressed: () {
-                setState(() {
-                  _passwordNotVisible = !_passwordNotVisible;
-                });
-              },
-            )))));
+            width: 250,
+            color: Color(0xBB000000),
+            child: TextFormField(
+                controller: controller,
+                obscureText: _secretNotVisible,
+                readOnly: true,
+                decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(16),
+                    border: InputBorder.none,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _secretNotVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white60,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _secretNotVisible = !_secretNotVisible;
+                        });
+                      },
+                    )))));
   }
 }

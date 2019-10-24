@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:passwordvaultclient/storage.dart';
 import 'package:passwordvaultclient/security/encryptedstorage.dart';
+import 'package:passwordvaultclient/model/secret.dart';
 
 class AddSecretPage extends StatefulWidget {
   AddSecretPage({Key key}) : super(key: key);
@@ -11,6 +12,7 @@ class AddSecretPage extends StatefulWidget {
 
 class _AddSecretState extends State<AddSecretPage> {
   final _keyController = TextEditingController();
+  final _accountController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passwordRepeatController = TextEditingController();
 
@@ -51,7 +53,8 @@ class _AddSecretState extends State<AddSecretPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          _buildKeyField(_keyController, "Secret key"),
+          _buildTextField(_keyController, "Secret key"),
+          _buildTextField(_accountController, "Account"),
           _buildPasswordField(_passwordController, "Enter secret", false),
           _buildPasswordField(_passwordRepeatController, "Repeat secret", true),
           _buildErrorMessage(),
@@ -69,7 +72,7 @@ class _AddSecretState extends State<AddSecretPage> {
     }
   }
 
-  Widget _buildKeyField(TextEditingController controller, String hint) {
+  Widget _buildTextField(TextEditingController controller, String hint) {
     return Padding(
         padding: EdgeInsets.only(bottom: 16),
         child: TextFormField(
@@ -132,12 +135,17 @@ class _AddSecretState extends State<AddSecretPage> {
 
   _save() {
     var key = _keyController.text;
+    var account = _accountController.text;
     var password = _passwordController.text;
     var passwordRepeat = _passwordRepeatController.text;
 
     if (key.isEmpty) {
       setState(() {
         _errorMessage = "Key cannot be empty";
+      });
+    } else if (account.isEmpty) {
+      setState(() {
+        _errorMessage = "Account cannot be empty";
       });
     } else if (password.isEmpty) {
       setState(() {
@@ -155,7 +163,7 @@ class _AddSecretState extends State<AddSecretPage> {
       setState(() {
         _errorMessage = "";
       });
-      _encryptedStorage.save(key, password);
+      _encryptedStorage.save(key, Secret(account: account, password: password));
       Navigator.pop(context);
     }
   }

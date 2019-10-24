@@ -28,6 +28,18 @@ class _KeysListState extends State<KeysListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Password Vault"),
+        actions: <Widget>[
+
+          PopupMenuButton<int>(
+            onSelected: (index) => _menuOptionSelected(context, index),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry<int>>[
+                PopupMenuItem(child: Text("Export to file"), value: 1),
+                PopupMenuItem(child: Text("Import from file"), value: 2)
+              ];
+            },
+          ),
+        ],
       ),
       body: _buildList(),
       floatingActionButton: FloatingActionButton(
@@ -36,6 +48,18 @@ class _KeysListState extends State<KeysListPage> {
             _addSecret();
           }),
     );
+  }
+
+  void _menuOptionSelected(BuildContext context, int index) async {
+    switch (index) {
+      case 1:
+      
+        break;
+      case 2:
+      
+        break;
+    }
+    Navigator.pop(context);
   }
 
   FutureBuilder _buildList() {

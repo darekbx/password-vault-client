@@ -3,6 +3,7 @@ import 'package:passwordvaultclient/storage.dart';
 import 'package:passwordvaultclient/security/encryptedstorage.dart';
 import 'package:passwordvaultclient/vault/addsecretpage.dart';
 import 'package:passwordvaultclient/vault/secretpage.dart';
+import 'package:passwordvaultclient/backup/backuppage.dart';
 
 class KeysListPage extends StatefulWidget {
   KeysListPage({Key key}) : super(key: key);
@@ -29,7 +30,6 @@ class _KeysListState extends State<KeysListPage> {
       appBar: AppBar(
         title: Text("Password Vault"),
         actions: <Widget>[
-
           PopupMenuButton<int>(
             onSelected: (index) => _menuOptionSelected(context, index),
             itemBuilder: (BuildContext context) {
@@ -51,15 +51,8 @@ class _KeysListState extends State<KeysListPage> {
   }
 
   void _menuOptionSelected(BuildContext context, int index) async {
-    switch (index) {
-      case 1:
-      
-        break;
-      case 2:
-      
-        break;
-    }
-    Navigator.pop(context);
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => BackupPage(mode: index)));
   }
 
   FutureBuilder _buildList() {

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:passwordvaultclient/storage.dart';
+import 'package:passwordvaultclient/security/encryptedstorage.dart';
+import 'package:passwordvaultclient/model/secret.dart';
 
 class BackupPage extends StatefulWidget {
   BackupPage({Key key, this.mode}) : super(key: key);
@@ -10,6 +13,8 @@ class BackupPage extends StatefulWidget {
 }
 
 class _BackupState extends State<BackupPage> {
+  final Storage _storage = Storage();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,5 +54,17 @@ class _BackupState extends State<BackupPage> {
         ],
       ),
     );
+  }
+
+  Future<Map<String, Secret>> export() async {
+    var pin = await _storage.readPin();
+    var encryptedStorage = EncryptedStorage(pin);
+    return await encryptedStorage.export();
+  }
+
+  Future import(Map<String, Secret> data) async {
+    var pin = await _storage.readPin();
+    var encryptedStorage = EncryptedStorage(pin);
+    await encryptedStorage.import(data);
   }
 }

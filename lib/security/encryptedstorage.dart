@@ -14,6 +14,25 @@ class EncryptedStorage {
 
   String _prefix = "key_";
 
+  Future<Map<String, Secret>> export() async {
+    var data = Map<String, Secret>();
+    var keys = await listKeys();
+    for (var key in keys) {
+      var secret = await read(key);
+      data[key] = secret;
+    }
+    return data;
+  }
+
+  Future import(Map<String, Secret> data) async {
+    var currentKeys = await listKeys();
+    for (var key in data.keys) {
+      if (!currentKeys.contains(key)) {
+        await save(key, data[key]);
+      }
+    }
+  }
+
   Future<List<String>> listKeys() async {
     var preferences = await _providePreferences();
     if (preferences.getKeys().length == 0) {

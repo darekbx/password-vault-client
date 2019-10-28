@@ -31,11 +31,10 @@ class _KeysListState extends State<KeysListPage> {
         title: Text("Password Vault"),
         actions: <Widget>[
           PopupMenuButton<int>(
-            onSelected: (index) => _menuOptionSelected(context, index),
+            onSelected: (index) => _menuOptionSelected(context),
             itemBuilder: (BuildContext context) {
               return <PopupMenuEntry<int>>[
-                PopupMenuItem(child: Text("Export to file"), value: 1),
-                PopupMenuItem(child: Text("Import from file"), value: 2)
+                PopupMenuItem(child: Text("Export / Import"), value: 1)
               ];
             },
           ),
@@ -50,9 +49,10 @@ class _KeysListState extends State<KeysListPage> {
     );
   }
 
-  void _menuOptionSelected(BuildContext context, int index) async {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => BackupPage(mode: index)));
+  void _menuOptionSelected(BuildContext context) async {
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => BackupPage()));
+    _refresh();
   }
 
   FutureBuilder _buildList() {

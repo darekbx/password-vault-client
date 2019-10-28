@@ -9,26 +9,30 @@ class EncryptedStorage {
 
   EncryptedStorage(String salt) {
     var pinMd5 = md5.convert(utf8.encode(salt)).toString();
+    print(pinMd5);
     _encryption = Encryption(pinMd5);
   }
 
   String _prefix = "key_";
 
-  Future<Map<String, Secret>> export() async {
-    var data = Map<String, Secret>();
+  Future<Map<String, String>> export() async {
+    var preferences = await _providePreferences();
+    var data = Map<String, String>();
     var keys = await listKeys();
     for (var key in keys) {
-      var secret = await read(key);
-      data[key] = secret;
+      var encrypted = preferences.getString("$_prefix$key");
+      data[key] = encrypted;
     }
+    print(data);
     return data;
   }
 
-  Future import(Map<String, Secret> data) async {
+  Future import(Map<String, dynamic> data) async {
+    var preferences = await _providePreferences();
     var currentKeys = await listKeys();
     for (var key in data.keys) {
       if (!currentKeys.contains(key)) {
-        await save(key, data[key]);
+        await preferences.setString("$_prefix$key", data[key]);
       }
     }
   }

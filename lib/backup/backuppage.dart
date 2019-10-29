@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:async' show Future;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:passwordvaultclient/storage.dart';
 import 'package:passwordvaultclient/security/encryptedstorage.dart';
 
@@ -14,8 +16,6 @@ class _BackupState extends State<BackupPage> {
   final Storage _storage = Storage();
   final _textFieldController = TextEditingController();
   var _statusText = "";
-
-  var _decryptionSample = "ZnJvbSBjcnlwdG9ncmFwaHkuZmVybmV0IGltcG9ydCBGZXJuZXQKaW1wb3J0IGJhc2U2NAoKcGluTWQ1ID0gIjgxZGM5YmRiNTJkMDRkYzIwMDM2ZGJkODMxM2VkMDU1IgpkYXRhRW5jcnlwdGVkID0gImdBQUFBQUJkdHhNOURRMFlDUXNnRHhvRUZnNFNBUUlRQWJ5Z2RLWnhuNjdzUVpiZnFIT2kvNDJkdi82ZjR4dWpBMG41dXY2enBkY0R6REd0OU5LVjNPYjJoN3VOajRxQ2ZGUW4rbjJYR3Z2NXljSzBkREtnWDNNPSIKCmtleSA9IGJhc2U2NC5iNjRlbmNvZGUocGluTWQ1KQpmID0gRmVybmV0KGtleSkKZCA9IGYuZGVjcnlwdChkYXRhRW5jcnlwdGVkKQoKcHJpbnQoZCkK";
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +68,16 @@ class _BackupState extends State<BackupPage> {
         child: Text(_statusText));
   }
 
+  Future<String> loadDecryptionSample() async {
+    return await rootBundle.loadString('assets/decryption_sample.base64');
+  }
+
   void export() async {
     try {
       var pin = await _storage.readPin();
       var encryptedStorage = EncryptedStorage(pin);
       var data = await encryptedStorage.export();
-      data["PythonDecryptionSample"] = _decryptionSample;
+      data["PythonDecryptionSample"] = await loadDecryptionSample();
       var dataJson = json.encode(data);
       _textFieldController.text = dataJson;
       setState(() {

@@ -21,6 +21,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/decryption_sample.base64
   fonts:
       - family: RobotoMono
         fonts:

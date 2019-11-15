@@ -1,0 +1,13 @@
+import android.service.autofill.AutofillService;
+
+class VaultAutofillService : AutofillService() {
+
+    override fun onFillRequest(
+            request: FillRequest,
+            cancellationSignal: CancellationSignal,
+            callback: FillCallback
+    ) {
+        //handel fill request
+        callback.onSuccess(null)
+    }
+}

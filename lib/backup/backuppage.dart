@@ -44,7 +44,7 @@ class _BackupState extends State<BackupPage> {
         child: TextFormField(
           controller: _textFieldController,
           textAlign: TextAlign.start,
-          maxLines: null,
+          maxLines: 26,
           style: TextStyle(fontFamily: 'RobotoMono'),
           decoration:
               InputDecoration(hintText: "", border: OutlineInputBorder()),
